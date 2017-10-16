@@ -1,0 +1,334 @@
+// Griffin Jones
+// 10.24.16
+// CS 2401 Project 4: Universal List
+// dlist implementation
+
+// Default Constructor
+template <class T>
+dlist<T>::dlist()
+{
+	// Default values
+	head = new dnode<T>(); 
+	tail = new dnode<T>();
+	head -> set_next(tail);
+	tail -> set_previous(head);
+}
+
+// Big 3 Destructor
+template <class T>
+dlist<T>::~dlist()
+{
+	dnode<T> *garbage;
+	dnode<T> *cursor = head -> next();
+
+	// Until there is nothing between head and tail
+	while (head -> next() != tail)
+	{
+		// Delete every node
+		garbage = cursor;
+		cursor = cursor -> next();
+		head -> set_next(cursor);
+		cursor -> set_previous(head);
+		delete garbage;
+	}
+	// cout << "KILL ALL NODES!\n";
+}
+
+// Big 3 Copy Constructor
+template <class T>
+dlist<T>::dlist(const T& other)
+{
+	// If the other dlist is empty, set this to empty
+	if (other.head == tail) head == tail;
+
+	else
+	{
+		// Default values for new dlist
+		head = new dnode<T>(); 
+		tail = new dnode<T>();
+		head -> set_next(tail);
+		tail -> set_previous(head);
+
+		// Declares nodes
+		dnode<T> *dest_trailer = head;
+		dnode<T> *cursor = head -> next();
+		dnode<T> *other_cursor = other.head -> next();
+		dnode<T> *source = other_cursor -> next();
+		dnode<T> *dest = cursor;
+		cursor = new dnode<T>(other_cursor -> data());
+
+		// While there is data to copy from other
+		while (source != tail)
+		{
+			// Create a new list
+			dest -> set_next(new dnode<T>(source -> data()));
+			dest -> set_previous(dest_trailer);
+			dest_trailer = dest_trailer -> next();
+			dest = dest -> next();
+			source = source -> next();
+		}
+	}
+}
+
+// Big 3 Assignment Operator
+template <class T>
+T& dlist<T>::operator = (const T& other)
+{
+	if (this == &other) return *this;
+	
+	dnode<T> *garbage;
+	dnode<T> *cursor = head -> next();
+
+	// Until there is nothing between head and tail
+	while (cursor != tail)
+	{
+		garbage = cursor;
+		cursor = cursor -> next();
+		head -> set_next(cursor);
+		cursor -> set_previous(head);
+		delete garbage;
+	}
+	
+	// If other has data
+	if (other.cursor != tail)
+	{
+		// Declares nodes
+		dnode<T> *dest_trailer = head;
+		cursor = head -> next();
+		dnode<T> *other_cursor = other.head -> next();
+		dnode<T> *source = other_cursor -> next();
+		dnode<T> *dest = cursor;
+		cursor = new dnode<T>(other_cursor -> data());
+
+		// While there is data to copy from other
+		while (source != tail)
+		{
+			// Create a new list
+			dest -> set_next(new dnode<T>(source -> data()));
+			dest -> set_previous(dest_trailer);
+			dest_trailer = dest_trailer -> next();
+			dest = dest -> next();
+			source = source -> next();
+		}
+	}
+	return *this;
+}
+
+// Returns size of dlist
+template <class T>
+int dlist<T>::size()
+{
+	int size = 0;
+
+	// If there's nothing, return 0
+	if (head -> next() == tail) return size;
+
+	else
+	{
+		// Increment the size and return it
+		dnode<T> *cursor = head;
+		cursor = cursor -> next();
+		while (cursor != tail)
+		{
+			size++;
+			cursor = cursor -> next();
+		}
+		return size;
+	}
+}
+
+// Prints the dlist
+template <class T>
+void dlist<T>::show()
+{
+	// If there's nothing, print nothing
+	if (head -> next() == tail);
+
+	else
+	{
+		// Crawl the list and print it
+		dnode<T> *cursor = head;
+		cursor = cursor -> next();
+		while (cursor != tail)
+		{
+			std::cout << cursor -> data() << std::endl;
+			cursor = cursor -> next();
+		}
+	}
+}
+
+// Prints the dlist in reverse
+template <class T>
+void dlist<T>::reverse_show()
+{
+	// If there's nothing, print nothing
+	if (tail -> previous() == head);
+
+	else
+	{
+		// Crawl the list and print it
+		dnode<T> *cursor = tail;
+		cursor = cursor -> previous();
+		while (cursor != head)
+		{
+			std::cout << cursor -> data() << std::endl;
+			cursor = cursor -> previous();
+		}
+	}
+}
+
+// Insert at the front of the list
+template <class T>
+void dlist<T>::front_insert(T& thing)
+{
+	// If it's the first item, add it between head and tail
+	if (head -> next() == tail)
+	{
+		dnode<T> *target = new dnode<T>(thing, tail, head);
+		head -> set_next(target);
+		tail -> set_previous(target);
+	}
+
+	else
+	{
+		// Add it between head and the first item
+		dnode<T> *cursor = head -> next();
+		dnode<T> *target = new dnode<T>(thing, cursor, head);
+		cursor -> set_previous(target);
+		head -> set_next(target);
+	}
+}
+
+// Insert at the rear of the list
+template <class T>
+void dlist<T>::rear_insert(T& thing)
+{
+	// If it's the first item, add it between head and tail
+	if (head -> next() == tail)
+	{
+		dnode<T> *target = new dnode<T>(thing, tail, head);
+		head -> set_next(target);
+		tail -> set_previous(target);
+	}
+
+	else
+	{
+		// Add it between tail and the last item
+		dnode<T> *cursor = tail -> previous();
+		dnode<T> *target = new dnode<T>(thing, tail, cursor);
+		cursor -> set_next(target);
+		tail -> set_previous(target);
+	}
+}
+
+// Remove the front of the list
+template <class T>
+void dlist<T>::front_remove()
+{
+	// If the list is empty, do nothing
+	if (head -> next() == tail);
+
+	else
+	{
+		// Delete the first item, link head to the second item
+		dnode<T> *cursor = head -> next();
+		cursor = cursor -> next();
+		dnode<T> *garbage = head -> next();
+		head -> set_next(cursor);
+		cursor -> set_previous(head);
+		delete garbage;
+	}
+}
+
+// Remove the rear of the list
+template <class T>
+void dlist<T>::rear_remove()
+{
+	// If the list is empty, do nothing
+	if (tail -> previous() == head);
+
+	else
+	{
+		// Delete the last item, link head to second to last item
+		dnode<T> *cursor = tail -> previous();
+		cursor = cursor -> previous();
+		dnode<T> *garbage = tail -> previous();
+		tail -> set_previous(cursor);
+		cursor -> set_next(tail);
+		delete garbage;
+	}
+}
+
+// Insert before the iterator
+template <class T>
+void dlist<T>::insert_before(iterator it, T& thing)
+{
+	// If the list is empty, put the thing between head and tail
+	if (head -> next() == tail)
+		front_insert(thing);
+
+	// If the iterator is something weird, put the thing at the front
+	else if (it.current == NULL || it.current == head -> next())
+		front_insert(thing);
+
+	else
+	{
+		// Put it between what's before and after ti
+		dnode<T> *cursor = it.current;
+		cursor -> set_data(thing);
+		cursor -> set_previous(it.current -> previous());
+		cursor -> set_next(it.current -> next());
+	}
+}
+
+// Insert after the iterator
+template <class T>
+void dlist<T>::insert_after(iterator it, T& thing)
+{
+	// If the list is empty, put the thing between the tail and the end
+	if (tail -> previous() == head)
+		rear_insert(thing);
+
+	// If the iterator is something weitd, put the thing at the rear
+	else if (it.current == NULL || it.current == tail -> previous())
+		rear_insert(thing);
+
+	else
+	{
+		// Put it between what's before and after it
+		dnode<T> *cursor = it.current;
+		cursor -> set_data(thing);
+		cursor -> set_previous(it.current -> previous());
+		cursor -> set_next(it.current -> next());
+	}
+}
+
+// Remove the thing where the iterator is
+template <class T>
+void dlist<T>::remove(iterator it)
+{
+	// If it's at the front, use front_remove
+	if (it.current == head -> next())
+	{
+		front_remove();
+		it++;
+	}
+
+	// If it's at the end, use rear_remove
+	else if (it.current == tail -> previous())
+	{
+		rear_remove();
+		it--;
+	}
+
+	else
+	{
+		// Link what's before and after it to each other; delete it
+		dnode<T> *n_cursor = it.current -> next();
+		dnode<T> *p_cursor = it.current -> previous();
+		n_cursor -> set_previous(p_cursor);
+		p_cursor -> set_next(n_cursor);
+		delete it.current;
+		it.current = p_cursor;
+	}
+} 
